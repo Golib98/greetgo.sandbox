@@ -1,6 +1,5 @@
 package kz.greetgo.sandbox.db.register_impl.migration;
 
-import kz.greetgo.sandbox.db.report.SqlExecutionTime.SqlExecutionTimeView;
 import kz.greetgo.util.RND;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
@@ -22,7 +21,6 @@ public class MigrationCia {
   public File inFile, errorsFile;
   public Connection connection;
   public int maxBatchSize = 5000;
-  public SqlExecutionTimeView view;
 
   private final Logger logger = Logger.getLogger(getClass());
 
@@ -35,6 +33,7 @@ public class MigrationCia {
     sql = sql.replaceAll("TMP_PHONE", phoneTable);
 
     try (Statement statement = connection.createStatement()) {
+
       long startedAt = System.nanoTime();
 
       statement.execute(sql);
@@ -42,7 +41,8 @@ public class MigrationCia {
       long elapsed = System.nanoTime() - startedAt;
       double seconds = (double) elapsed / 1000000000.0;
 
-      logger.trace("SQL [" + seconds + "] " + sql);
+      if (logger.isDebugEnabled()) logger.debug("SQL [" + seconds + "] " + sql);
+
     }
   }
 
@@ -55,10 +55,6 @@ public class MigrationCia {
     uploadFileToTempTables();
     mainMigrationOperation();
     downloadErrors();
-  }
-
-  public void getExecutedTime() throws SQLException {
-    view.finish();
   }
 
   void createTempTables() throws Exception {

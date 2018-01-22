@@ -30,30 +30,33 @@ public class MigrationManager {
 
 
   public void migrate() throws Exception {
-    logger.trace("[[[[[[ ------ MIGRATION STARTED ------ ]]]]]]]");
-    logger.trace("[[[[[[ ------ " + getCurrentTimeStamp() + "");
+
+    trace("[[[[[[ ------ MIGRATION STARTED ------ ]]]]]]");
+    trace("[[[[[[ ------ " + getCurrentTimeStamp() + "");
 
     long started = System.nanoTime();
 
     SSHManager sshManager = this.sshManager.get();
     try (Connection connection = createConnection()) {
+      trace("[[[[[[ ------ CIA migration is going... ------ ]]]]]]");
       sshManager.connectAndMigrateCia(connection);
     } catch (Exception e) {
-      logger.trace("Exeption: " + e);
+      if (logger.isTraceEnabled()) logger.trace("Exeption: ", e);
     }
 
     try (Connection connection = createConnection()) {
+      trace("[[[[[[ ------ FRS migration is going... ------ ]]]]]]");
       sshManager.connectAndMigrateFrs(connection);
     } catch (Exception e) {
-      logger.trace("Exeption: " + e);
+      if (logger.isTraceEnabled()) logger.trace("Exeption: ", e);
     }
 
 
-    logger.trace("[[[[[[ ------ MIGRATION ENDED ------ ]]]]]]]");
-    logger.trace("[[[[[[ ------ " + getCurrentTimeStamp() + "");
+    trace("[[[[[[ ------ MIGRATION ENDED ------ ]]]]]]");
+    trace("[[[[[[ ------ " + getCurrentTimeStamp() + "");
 
-    logger.trace("[[[[[[ ------ EXECUTION TIME ------ ]]]]]]]");
-    logger.trace("[[[[[[ ------ "
+    trace("[[[[[[ ------ EXECUTION TIME ------ ]]]]]]");
+    trace("[[[[[[ ------ "
       + TimeUnit.HOURS.convert(System.nanoTime() - started, TimeUnit.NANOSECONDS)
       + "  Hours  "
       + TimeUnit.MINUTES.convert(System.nanoTime() - started, TimeUnit.NANOSECONDS)
@@ -65,6 +68,11 @@ public class MigrationManager {
 
   private String getCurrentTimeStamp() {
     return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(System.currentTimeMillis()));
+  }
+
+  private void trace(Object msg) {
+    if (logger.isTraceEnabled())
+      logger.trace(msg);
   }
 
 }

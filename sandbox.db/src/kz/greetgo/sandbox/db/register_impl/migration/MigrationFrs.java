@@ -1,6 +1,5 @@
 package kz.greetgo.sandbox.db.register_impl.migration;
 
-import kz.greetgo.sandbox.db.report.SqlExecutionTime.SqlExecutionTimeView;
 import kz.greetgo.util.RND;
 import org.apache.log4j.Logger;
 
@@ -15,7 +14,6 @@ public class MigrationFrs {
   public File inFile, errorsFile;
   public Connection connection;
   public int maxBatchSize = 5000;
-  public SqlExecutionTimeView view;
 
   private final Logger logger = Logger.getLogger(getClass());
 
@@ -33,7 +31,7 @@ public class MigrationFrs {
       long elapsed = System.nanoTime() - startedAt;
       double seconds = (double) elapsed / 1000000000.0;
 
-      logger.trace("SQL [" + seconds + "] " + sql);
+      if (logger.isDebugEnabled()) logger.debug("SQL [" + seconds + "] " + sql);
     }
 
   }
@@ -45,10 +43,6 @@ public class MigrationFrs {
     uploadFileToTempTables();
     mainMigrationOperation();
     downloadErrors();
-  }
-
-  public void getExecutedTime() {
-    view.finish();
   }
 
   void createTempTables() throws SQLException {
